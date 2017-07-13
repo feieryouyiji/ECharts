@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+        .clearfix:after{
+            content:".";
+            display: block;
+            height: 0;
+            line-height: 0;
+            visibility: hidden;
+            clear: both; 
+        }
+        #box{
+            width: 100%;
+            position: relative;
+        }
+        #map{
+            width: 50%;
+            float: left;
+        }
+        #main{
+            /*float:left;*/
+        }
+        #container{
+            /*float:right;*/
+            width: 100%;
+            height: 800px;
+        }
+        button{
+            position: absolute;
+            top: 0;
+            right: 50%;
+            /*z-index: 10;*/
+        }
+        #graphic {
+            float: right;
+            width: 50%;
+        }
+    </style>
+     <script src="echarts.min.js"></script>
+    <script src="node_modules/echarts/map/js/china.js"></script>
+
+</head>
+<body>
+
+   
+<div id="box" class="clearfix">
+
+    <div id="map" >
+        <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+        <div id="main" style="width: 100%;height:800px"></div>
+        <!-- <div id="container" style="width: 500px;height:800px;"></div> -->
+    </div>
+
+    <button id="btn"> 
+     返回全国地图
+    </button>
+
+    <div id="graphic">
+        <div id="histogram" style="width: 100%;height:800px"></div>
+    </div>
+
+</div>    
+
+
+<script type="text/javascript"> 
+
+
+//定义全国省份的数组
+ var provinces = ['shanghai', 'hebei','shanxi','neimenggu','liaoning','jilin','heilongjiang','jiangsu','zhejiang','anhui','fujian','jiangxi','shandong','henan','hubei','hunan','guangdong','guangxi','hainan','sichuan','guizhou','yunnan','xizang','shanxi1','gansu','qinghai','ningxia','xinjiang', 'beijing', 'tianjin', 'chongqing', 'xianggang', 'aomen'];
+ var provincesText = ['上海', '河北', '山西', '内蒙古', '辽宁', '吉林','黑龙江',  '江苏', '浙江', '安徽', '福建', '江西', '山东','河南', '湖北', '湖南', '广东', '广西', '海南', '四川', '贵州', '云南', '西藏', '陕西', '甘肃', '青海', '宁夏', '新疆', '北京', '天津', '重庆', '香港', '澳门'];
+
+// 记录加载的id
+var loadedScriptID ="";
+
+var selectedProvince = "";
+var selectedCity = "";
+
+//定义btn
+var btn = document.getElementById('btn');
+
+
+// 定义一个假数据
+var fakeObj = {
+    '湖北':{
+        '武汉市':[300, 620, 100, 340, 190, 230, 120],
+        '黄冈市':[400, 50, 220, 134, 490, 130, 140],
+        '宜昌市':[10, 350, 525, 144, 190, 630, 160],
+        '襄阳市':[110, 320, 125, 544, 590, 630, 660],
+        '荆州市':[510, 310, 465, 134, 690, 432, 260],
+    },
+    '湖南':{
+        '长沙市':[300, 620, 100, 340, 190, 230, 120],
+        '岳阳市':[400, 50, 220, 134, 490, 130, 140],
+        '衡阳市':[10, 350, 525, 144, 190, 630, 160],
+        '张家界市':[110, 320, 125, 544, 590, 630, 660],
+        '常德市':[510, 310, 465, 134, 690, 432, 260],
+    },
+    '江西':{
+        '南昌市':[300, 620, 100, 340, 190, 230, 120],
+        '九江市':[400, 50, 220, 134, 490, 130, 140],
+        '赣州市':[10, 350, 525, 144, 190, 630, 160],
+        '吉安市':[110, 320, 125, 544, 590, 630, 660],
+        '宜春市':[510, 310, 465, 134, 690, 432, 260],
+    },
+
+}
+
+
+
+// 函数
+// 函数
+// 函数
+// 函数
+// 函数
+// 随机数函数
+
+function randomData() {
+    return Math.round(Math.random()*1000);
+}
+
+
+// 加载container容器
+
+function loadedContainer (){
+
+    var div = document.createElement("div");
+    div.id="container";
+    document.getElementById("map").appendChild(div)
+
+}
+
+// 初始化地图 函数
+function initEcharts(pName,index) {
+
+    var dom2 = document.getElementById("container");
+      
+      //得到echarts的实例对象
+      myChart2 = echarts.init(dom2);
+
+      //关键是配置项
+       var option ={
+
+            series : [
+            {
+                name: '网点个数',
+                //series[i]-map:系列列表。每个系列通过 type 决定自己的图表类型,此处是地图类型
+                type: 'map', 
+                //这里是'china',及因为js中注册的名字，如果是上海市，则该出需pName 指的是'shanghai'
+                mapType: provincesText[index],
+                //地图区域的多边形 图形样式，有 normal 和 emphasis 两个状态
+                itemStyle: {
+                //normal 是图形在默认状态下的样式；
+                    normal: {
+                        show: true,
+                        areaColor:"#CECECE",
+                        borderColor:"#FCFCFC",
+                        borderWidth:"1"
+                    },
+                    //emphasis 是图形在高亮状态下的样式，比如在鼠标悬浮或者图例联动高亮时。
+                    emphasis: {
+                        show: true,
+                        areaColor:"#C8A5DF",
+                    }
+                },
+                //图形上的文本标签，可用于说明图形的一些数据信息
+                label: {
+                    normal: {
+                        show: true
+                    },
+                    emphasis: {
+                        show: true
+                    }
+                },
+
+            }],
+            title : {
+            text: provincesText[index],
+            left: 'center'
+           } 
+           };
+          
+          //使用刚指定的配置项和数据显示图表。
+          myChart2.setOption(option);
+
+          
+
+          //container中的地图绑定事件 
+          myChart2.on('click',function(par){
+                // 记录选择的市区
+                selectedCity = par.name
+                // console.log(par.name)
+                // console.log(loadedScriptID)
+                console.log("点击了市区")
+                for(var i in fakeObj){
+                    console.log("进入了循环判断"+i,"-------------",selectedProvince)
+
+                    if (selectedProvince == i) {
+
+                        for(var j in fakeObj[i]) {
+                            
+                            if (selectedCity == j) {
+                                option3.series[0].data = fakeObj[i][j];
+                                myChart3.setOption(option3);
+                                console.log("哈啊哈哈哈哈")
+                                console.log(i)
+                                console.log(j)
+                                console.log(fakeObj[i])
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    
+                }
+
+
+                // if (true) {}
+                // option3.series[0].data = [100, 520, 200, 34, 90, 330, 120]
+                // myChart3.setOption(option3) 
+    })
+         
+ }
+
+ //展示对应的省函数
+function  showProvince(pName,index){
+
+   //这写省份的js都是通过在线构建工具生成的，保存在本地，需要时加载使用即可，最好不要一开始全部直接引入。 
+   loadBdScript('$'+pName+'JS','./province/'+pName+'.js',function(){
+
+         //初始化echarts:具体代码参考上面初始化中国地图即可，这里不再重复。
+          initEcharts(pName,index) ; 
+
+    });
+}
+
+//加载对应的JS函数
+function loadBdScript(scriptId, url, callback) {
+
+    // // 先删除之前加载的script
+    if (loadedScriptID != "") {
+        document.getElementsByTagName("head")[0].removeChild(document.getElementById(loadedScriptID));
+        // alert("哈哈哈,补位空")
+    }
+
+    // 记录加载的脚本
+     loadedScriptID = scriptId; 
+
+     var script = document.createElement("script")  
+        script.type = "text/javascript";  
+        if (script.readyState){  //IE  
+            script.onreadystatechange = function(){  
+                if (script.readyState == "loaded" || script.readyState == "complete"){  
+                    script.onreadystatechange = null;  
+                    callback();  
+                }  
+            };  
+        } else {  //Others  
+            script.onload = function(){  
+                callback();  
+            };  
+        }  
+        script.src = url; 
+        script.id = scriptId;
+        document.getElementsByTagName("head")[0].appendChild(script); 
+
+};
+
+// 函数
+// 函数
+// 函数
+// 函数
+// 函数
+
+
+    //模拟假数据
+    var fakeArr = {
+
+    }
+
+    // 初始化地图
+    var myChart1 = echarts.init(document.getElementById('main'));
+        
+    var option1 = {
+        title: {
+            text: 'iphone销量',
+            subtext: '纯属虚构',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'item'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data:['iphone3','iphone4','iphone5']
+        },
+        visualMap: {
+            min: 0,
+            max: 2500,
+            left: 'left',
+            top: 'bottom',
+            text: ['高','低'],           // 文本，默认为数值文本
+            calculable: true
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                dataView: {readOnly: false},
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        series: [
+            {
+                 itemStyle: {
+                        normal: {
+                                    color: function (params) {
+                                        var colorList = [
+                                          '#C1232B', '#B5C334', '#FCCE10', '#E87C25', '#27727B',
+                                           '#FE8463', '#9BCA63', '#FAD860', '#F3A43B', '#60C0DD',
+                                           '#D7504B', '#C6E579', '#F4E001', '#F0805A', '#26C0C0'
+                                        ];
+                                        return colorList[params.dataIndex]
+                                    },
+                                    
+                                }
+                            },
+                name: 'iphone3',
+                type: 'map',
+                mapType: 'china',
+                roam: false,
+                label: {
+                    normal: {
+                        show: true
+                    },
+                    emphasis: {
+                        show: true
+                    }
+                },
+                data:[
+                    {name: '北京',value: randomData() },
+                    {name: '天津',value: randomData() },
+                    {name: '上海',value: randomData() },
+                    {name: '重庆',value: randomData() },
+                    {name: '河北',value: randomData() },
+                    {name: '河南',value: randomData() },
+                    {name: '云南',value: randomData() },
+                    {name: '辽宁',value: randomData() },
+                    {name: '黑龙江',value: randomData() },
+                    {name: '湖南',value: randomData() },
+                    {name: '安徽',value: randomData() },
+                    {name: '山东',value: randomData() },
+                    {name: '新疆',value: randomData() },
+                    {name: '江苏',value: randomData() },
+                    {name: '浙江',value: randomData() },
+                    {name: '江西',value: randomData() },
+                    {name: '湖北',value: randomData() },
+                    {name: '广西',value: randomData() },
+                    {name: '甘肃',value: randomData() },
+                    {name: '山西',value: randomData() },
+                    {name: '内蒙古',value: randomData() },
+                    {name: '陕西',value: randomData() },
+                    {name: '吉林',value: randomData() },
+                    {name: '福建',value: randomData() },
+                    {name: '贵州',value: randomData() },
+                    {name: '广东',value: randomData() },
+                    {name: '青海',value: randomData() },
+                    {name: '西藏',value: randomData() },
+                    {name: '四川',value: randomData() },
+                    {name: '宁夏',value: randomData() },
+                    {name: '海南',value: randomData() },
+                    {name: '台湾',value: randomData() },
+                    {name: '香港',value: randomData() },
+                    {name: '澳门',value: randomData() }
+                ]
+            
+            },
+
+        ]
+    };                
+    myChart1.setOption(option1);  
+
+    //main容器绑定点击事件
+    myChart1.on('click', function (param) {   
+
+
+        // 记录选择省份
+        selectedProvince =param.name;
+
+        // 删除多余的container,避免bug
+        document.getElementById('main').style.display = "none"
+        if(document.getElementById('container')){
+
+            document.getElementById("map").removeChild(document.getElementById('container'))
+        }
+
+        //遍历取到provincesText 中的下标  去拿到对应的省js
+        for(var  i= 0 ;i<provincesText.length;i++){
+
+            if(param.name == provincesText[i]){
+               //显示对应省份的方法
+                console.log(param.name)
+                loadedContainer();
+                showProvince(provinces[i],i) ;
+
+                // console.log(provinces[i])
+                break ;
+            }
+        }             
+    });
+
+
+
+    // 给button绑定事件
+    btn.onclick = function () {
+
+        if(document.getElementById('container')){
+            document.getElementById("map").removeChild(document.getElementById('container'))
+            document.getElementById('main').style.display = "block"
+        }
+    }
+ 
+
+//--------------------------------------------------------------------------------------------------------- 
+// 柱状图部分
+
+    var myChart3 = echarts.init(document.getElementById('histogram'));
+
+
+    
+
+    var option3 = {
+    color: ['#3398DB'],
+    tooltip : {
+        trigger: 'axis',
+        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis : [
+        {
+            type : 'category',
+            data : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            axisTick: {
+                alignWithLabel: true
+            }
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name:'直接访问',
+            type:'bar',
+            barWidth: '60%',
+            data:[10, 52, 200, 334, 390, 330, 220]
+        }
+    ]
+    };
+
+    myChart3.setOption(option3)
+
+    myChart3.on("click",function (par) {
+       
+
+    })
+
+ </script>  
+
+</body>
+</html>
