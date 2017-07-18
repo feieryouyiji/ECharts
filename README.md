@@ -72,4 +72,34 @@ eg:
             that.myChart3.clear();
             that.myChart3.setOption(that.option3)
 ```
+
+>5. It is bad that echarts can't set percent width and height,but fixed width and height. However we can set the width and height in js dynamically.**eg:**
+```javascript
+    function setSizeContainer(dom){
+        dom.style.width = Number(window.innerWidth)/2+"px";
+        dom.style.Height = Number(window.innerHeight)/2+"px"
+    }
+    
+    //在初始化一个容器为echarts实例时,就先动态设置它的size
+    // 初始化中国地图
+    var domMychart1 = document.getElementById('myChart1');
+    // 设置设置mychart1dom\元素的宽高
+    this.setsizeContainer(domMychart1)
+    this.myChart1 = this.$echarts.init(domMychart1);
+    this.option1 ={...}
+    this.myChart1.setOption(this.option1);
+    
+    再给window对象绑定resize事件
+    
+    window.onresize = function(){
+    
+        that.setSizeContainer();
+        this.myChart1.resize()   //mychart实例的一个方法,一旦容器大小变化了,要调用此方法
+    
+        
+    }
+    
+
+```
+
 ## We will continue to improve the demo later.....
