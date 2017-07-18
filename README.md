@@ -1,20 +1,20 @@
 # ECharts
 >It is my first to use Echarts for completing Chinines map
 # The usage
-1. You need import ths script 
+>1. You need import ths script 
 eg: 
 ```
     <script src="echarts.min.js"></script>
     <script src="node_modules/echarts/map/js/china.js"></script>
 ```
-2. We should prepare one or more container(div) to warp our map
+>2. We should prepare one or more container(div) to warp our map
 ```
   <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
     <div id="main" style="width: 1000px;height:800px; background-color: pink"></div>
     <div id="container" style="width: 1000px;height:800px;"></div>
 ```
 
-3. The most important part is js.
+>3. The most important part is js.
 ```
   //获取准备的容器对象
   var dom = document.getElementById("container");
@@ -65,5 +65,11 @@ eg:
            };
   //使用刚指定的配置项和数据显示图表。
   myChart.setOption(option);
+```
+
+>4. if you want to change the content of the canvas, you can choose the function(mychart.clear())
+```
+            that.myChart3.clear();
+            that.myChart3.setOption(that.option3)
 ```
 ## We will continue to improve the demo later.....
